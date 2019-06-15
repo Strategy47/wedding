@@ -6,8 +6,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\UserBundle\Model\User as BaseUser;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     mercure=true,
+ *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}},
+ *     itemOperations={"get"},
+ *     collectionOperations={"post","get"})
  * @ORM\Entity
  */
 class User extends BaseUser
@@ -30,7 +38,7 @@ class User extends BaseUser
     protected $email;
 
     /**
-     * @ORM\Column(type="string", nullable=false, unique=true)
+     * @ORM\Column(type="string", nullable=true, unique=false)
      * @Assert\NotBlank(message = "Veuillez renseigner un numéro de téléphone")
      * @Assert\Regex(
      *     pattern="/^(0|\+33)[1-9](?:[\.\-\s]?\d\d){4}$/",
@@ -41,20 +49,20 @@ class User extends BaseUser
     private $phone;
 
     /**
-     * @ORM\Column(type="string", nullable=false)
-     * @Assert\NotBlank(message = "Veuillez renseigner une adresse")
+     * @ORM\Column(type="string", nullable=true)
+     * Assert\NotBlank(message = "Veuillez renseigner une adresse")
      */
     private $address;
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @Assert\NotBlank(message = "Veuillez renseigner une ville.")
+     * Assert\NotBlank(message = "Veuillez renseigner une ville.")
      */
     private $city;
 
     /**
-     * @ORM\Column(type="string", nullable=false, length=5)
-     * @Assert\NotBlank(message = "Veuillez renseigner un code postale")
+     * @ORM\Column(type="string", nullable=true, length=5)
+     * Assert\NotBlank(message = "Veuillez renseigner un code postale")
      */
     private $zipCode;
 
@@ -66,11 +74,25 @@ class User extends BaseUser
     private $housings;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $invitedBy;
+
+    /**
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Person", mappedBy="user", cascade={"all"}, orphanRemoval=true)
      */
     private $persons;
+
+    private $superAdmin = false;
+
+    /**
+     * @Groups({"edit"})
+     */
+    private $group = array();
 
     /**
      * User constructor.
@@ -228,5 +250,24 @@ class User extends BaseUser
     public function getPersons() : \Countable
     {
         return $this->persons;
+    }
+
+    /**
+     * @param string $invitedBy
+     * @return User
+     */
+    public function setInvitedBy(string $invitedBy) : self
+    {
+        $this->invitedBy = $invitedBy;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getInvitedBy() : ?string
+    {
+        return $this->invitedBy;
     }
 }

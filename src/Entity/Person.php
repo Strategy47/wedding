@@ -3,8 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
+ * @ApiResource(
+ *     mercure=true,
+ *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}},
+ *     itemOperations={"get"},
+ *     collectionOperations={"post","get"})
  * @ORM\Entity
  */
 class Person
@@ -33,11 +40,6 @@ class Person
     private $lastName;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $avatar;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(type="datetime", nullable=true)
@@ -54,23 +56,23 @@ class Person
     /**
      * @var boolean
      *
-     * @ORM\Column(type="boolean", nullable=false)
+     * @ORM\Column(type="boolean", options={"default":true})
      */
-    private $doubleBed = false;
+    private $eats = true;
 
     /**
-     * @var BedRoom
+     * @var Housing
      *
-     * @ORM\ManyToOne(targetEntity="BedRoom", inversedBy="persons")
+     * @ORM\ManyToOne(targetEntity="Housing", inversedBy="persons")
      * @ORM\JoinColumn(nullable=true, referencedColumnName="id")
      */
-    private $bedRoom;
+    private $housing;
 
     /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="persons")
-     * @ORM\JoinColumn(nullable=true, referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="id")
      */
     private $user;
 
@@ -121,10 +123,10 @@ class Person
     }
 
     /**
-     * @param \DateTime $birthDate
+     * @param \DateTime|null $birthDate
      * @return Person
      */
-    public function setBirthDate(\DateTime $birthDate) : Person
+    public function setBirthDate(?\DateTime $birthDate) : Person
     {
         $this->birthDate = $birthDate;
 
@@ -159,29 +161,6 @@ class Person
     }
 
     /**
-     * @param string $avatar
-     * @return Person
-     */
-    public function setAvatar(string $avatar) : Person
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAvatar() : string
-    {
-        if (null === $this->avatar) {
-            return "uploads/avatar.jpg";
-        }
-
-        return 'uploads/avatar/' . $this->avatar . '.jpg';
-    }
-
-    /**
      * @param User $user
      * @return Person
      */
@@ -201,31 +180,31 @@ class Person
     }
 
     /**
-     * @param BedRoom $bedRoom
+     * @param Housing $housing
      * @return Person
      */
-    public function setBedRoom(BedRoom $bedRoom) : Person
+    public function setHousing(Housing $housing) : self
     {
-        $this->bedRoom = $bedRoom;
+        $this->housing = $housing;
 
         return $this;
     }
 
     /**
-     * @return BedRoom|null
+     * @return Housing|null
      */
-    public function getBedRoom() : ?BedRoom
+    public function getHousing() : ?Housing
     {
-        return $this->bedRoom;
+        return $this->housing;
     }
 
     /**
-     * @param bool $doubleBed
+     * @param bool $eats
      * @return Person
      */
-    public function setDoubleBed(bool $doubleBed) : Person
+    public function setEats(bool $eats) : Person
     {
-        $this->doubleBed = $doubleBed;
+        $this->eats = $eats;
 
         return $this;
     }
@@ -233,8 +212,8 @@ class Person
     /**
      * @return bool
      */
-    public function getDoubleBed() : bool
+    public function isEats() : bool
     {
-        return $this->doubleBed;
+        return $this->eats;
     }
 }

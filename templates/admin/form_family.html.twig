@@ -1,0 +1,51 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ user.id ? 'Edition' : 'Ajout' }} d'une famille</h1>
+    </div>
+
+    <div class="container">
+        {{ form_start(form) }}
+
+        {{ form_row(form.username) }}
+
+        {{ form_row(form.email) }}
+        {{ form_row(form.phone) }}
+        {{ form_row(form.address) }}
+        {{ form_row(form.zipCode) }}
+        {{ form_row(form.city) }}
+        {{ form_row(form.plainPassword) }}
+
+        <hr>
+
+        <ul id="person-fields-list"
+            data-prototype="{{ form_widget(form.persons.vars.prototype)|e }}"
+            data-widget-tags="{{ '<li></li>'|e }}"
+            data-widget-counter="{{ form.children|length }}">
+            {% for personField in form.persons %}
+                <li>
+                    {{ form_errors(personField) }}
+                    {{ form_widget(personField) }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <button type="button"
+                class="add-another-collection-widget"
+                data-list-selector="#person-fields-list">Ajouter une personne</button>
+
+
+        {{ form_row(form) }}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+
+    </script>
+{% endblock %}

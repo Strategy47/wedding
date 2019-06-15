@@ -4,15 +4,22 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
  * User
  *
+ * @ApiResource(
+ *     mercure=true,
+ *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}},
+ *     itemOperations={"get"},
+ *     collectionOperations={"post","get"})
  * @ORM\Entity
  */
 class Housing
 {
-    const TYPE = array('villa', 'gite');
+    const TYPE = array('Villa', 'Gîte');
 
     /**
      * @var integer
@@ -31,6 +38,20 @@ class Housing
     private $type;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $singleBed = 0;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $doubleBed = 0;
+
+    /**
      * @var float
      *
      * @ORM\Column(type="float", nullable=false)
@@ -40,9 +61,16 @@ class Housing
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="BedRoom", mappedBy="housing", cascade={"all"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="Person", mappedBy="housing", cascade={"all"}, orphanRemoval=true)
      */
-    private $bedRooms;
+    private $persons;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(type="float", nullable=false)
+     */
+    private $area = 0.00;
 
     /**
      * TODO : ManyToMany ? create getter and setter
@@ -58,7 +86,7 @@ class Housing
      */
     public function __construct()
     {
-        $this->bedRooms = new ArrayCollection();
+        $this->persons = new ArrayCollection();
         $this->photos = new ArrayCollection();
     }
 
@@ -94,20 +122,6 @@ class Housing
     }
 
     /**
-     * @return int
-     */
-    public function getCapacity() : int
-    {
-        $c = 0;
-
-        foreach ($this->bedRooms as $bedRoom) {
-            $c += $bedRoom->getCapacity();
-        }
-
-        return $c;
-    }
-
-    /**
      * @param float $price
      * @return Housing
      */
@@ -127,27 +141,27 @@ class Housing
     }
 
     /**
-     * @param Bedroom $bedRoom
+     * @param Photo $photo
      * @return Housing
      */
-    public function addBedroom(Bedroom $bedRoom) : Housing
+    public function addPhoto(Photo $photo) : Housing
     {
-        if (null === $bedRoom->getHousing()) {
-            $bedRoom->setHousing($this);
+        if (null === $photo->getHousing()) {
+            $photo->setHousing($this);
         }
 
-        $this->bedRooms[] = $bedRoom;
+        $this->photos[] = $photo;
 
         return $this;
     }
 
     /**
-     * @param Bedroom $bedRoom
+     * @param Photo $photo
      * @return Housing
      */
-    public function removeBedroom(Bedroom $bedRoom) : Housing
+    public function removePhoto(Photo $photo) : Housing
     {
-        $this->bedRooms->removeElement($bedRoom);
+        $this->photos->removeElement($photo);
 
         return $this;
     }
@@ -155,8 +169,95 @@ class Housing
     /**
      * @return \Countable
      */
-    public function getBedrooms() : \Countable
+    public function getPhotos() : \Countable
     {
-        return $this->bedRooms;
+        return $this->photos;
+    }
+
+    /**
+     * @param int $singleBed
+     * @return Housing
+     */
+    public function setSingleBed(int $singleBed) : self
+    {
+        $this->singleBed = $singleBed;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSingleBed() : int
+    {
+        return $this->singleBed;
+    }
+
+    /**
+     * @param int $doubleBed
+     * @return Housing
+     */
+    public function setDoubleBed(int $doubleBed) : self
+    {
+        $this->doubleBed = $doubleBed;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDoubleBed() : int
+    {
+        return $this->doubleBed;
+    }
+
+    /**
+     * @param float $area
+     * @return Housing
+     */
+    public function setArea(float $area) : self
+    {
+        $this->area = $area;
+
+        return $this;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getArea() : ?float
+    {
+        return $this->area;
+    }
+
+    /**
+     * @param Person $person
+     * @return Housing
+     */
+    public function addPerson(Person $person) : self
+    {
+        if (null === $person->getHousing()) {
+            $person->setHousing($this);
+        }
+        $this->persons[] = $person;
+        return $this;
+    }
+
+    /**
+     * @param Person $person
+     * @return Housing
+     */
+    public function removePerson(Person $person) : self
+    {
+        $this->persons->removeElement($person);
+        return $this;
+    }
+    /**
+     * @return \Countable
+     */
+    public function getPersons() : \Countable
+    {
+        return $this->persons;
     }
 }

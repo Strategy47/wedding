@@ -3,11 +3,18 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * User
  *
- * @ORM\Table("photos")
+ * @ApiResource(
+ *     mercure=true,
+ *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}},
+ *     itemOperations={"get"},
+ *     collectionOperations={"post","get"})
  * @ORM\Entity
  */
 class Photo
